@@ -1,25 +1,34 @@
-//http://bonsaiden.github.com/JavaScript-Garden/
-
 $(function() {
-  var total = 3;
+  var currentContentId;
+  var oldContentId;
   var contents = [];
-  for (var i = 0; i < total; i++) {
-    var content = $("#content" + (i + 1));
-    contents.push({top: content.offset().top, id: content.attr("id")});
-  }
+  $(".content").each(function(index, element) {
+    var top = $(element).offset().top;
+    var id = $(element).attr("id");
+    contents.push({top: top, id: id});
+  });
 
-  function highlightCurrentMenu(id) {
+  var highlightCurrentMenu = function() {
+    if (currentContentId === getCurrentContentId()) {
+      return;
+    }
+    oldContentId = currentContentId;
+    currentContentId = getCurrentContentId();
+
     $("#menu li").each(function() {
       var hash = $($(this).children()[0]).attr("href").match(/^#(.*)$/)[1];
-      if (id === hash) {
+      if (currentContentId === hash) {
         $(this).addClass("current");
-      } else {
+        $(this).animate({fontSize: "1.5em"}, 100);
+      } else if (oldContentId === hash) {
         $(this).removeClass("current");
+        $(this).animate({fontSize: "1em"}, 100);
       }
     });
+
   }
-  
-  $(document).scroll(function() {
+
+  var getCurrentContentId = function() {
     var offset = $(window).scrollTop() + 200; 
     var currentContentId = contents[0].id;
     for (var i = 0; i < contents.length; i++) {
@@ -27,6 +36,12 @@ $(function() {
         currentContentId = contents[i].id;
       }
     }
-    highlightCurrentMenu(currentContentId);
+    return currentContentId;
+  }
+
+  $(document).scroll(function() {
+    highlightCurrentMenu();
   });
+
+  highlightCurrentMenu();
 });
